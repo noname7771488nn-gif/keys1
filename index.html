@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -54,6 +54,11 @@
             background-color: #555 !important;
             cursor: not-allowed;
         }
+        .bypass-btn {
+            background-color: #8b2e2e;
+            margin-top: 10px;
+        }
+        .bypass-btn:hover { background-color: #b33c3c; }
         .result-box {
             margin-top: 20px;
             padding: 15px;
@@ -67,6 +72,7 @@
             font-weight: bold;
             color: #00ff7f;
             letter-spacing: 1px;
+            user-select: all;
         }
         .error-msg {
             color: #ff4d4d;
@@ -79,42 +85,51 @@
 <body>
 
 <div class="container">
-    <h2>🔑 Отримати Ключ Доступу</h2>
-    <div id="errorBox" class="error-msg">❌ Ви обійшли рекламу або посилання застаріло! Пройдіть Linkvertise чесно.</div>
+    <h2>🔑 Get Your Access Key</h2>
+    <div id="errorBox" class="error-msg">❌ Security check failed! Please pass the Linkvertise link honestly.</div>
     
-    <p id="instructionText">Введіть ваш Roblox UserId для генерації ключа.</p>
+    <p id="instructionText">Enter your Roblox UserId (found inside the script GUI) to generate today's key.</p>
     
-    <input type="number" id="userIdInput" placeholder="Введіть ваш Roblox ID...">
-    <button id="genBtn" onclick="generateKey()">Згенерувати Ключ</button>
+    <input type="number" id="userIdInput" placeholder="Enter your Roblox ID here...">
+    <button id="genBtn" onclick="generateKey()">Generate Key</button>
+    <button id="bypassBtn" class="bypass-btn" onclick="forceUnlock()" style="display: none;">I passed Linkvertise (Unlock)</button>
 
     <div class="result-box" id="resultBox">
-        <p>Ваш індивідуальний ключ на 24 години:</p>
+        <p>Your unique key for the next 24 hours:</p>
         <div class="key-text" id="keyOutput">KEY-00000000</div>
+        <p style="font-size: 11px; margin-top: 10px; color: #888;">Click on the key to copy it</p>
     </div>
 </div>
 
 <script>
-// Перевірка Linkvertise Anti-Bypass при завантаженні сторінки
 const urlParams = new URLSearchParams(window.location.search);
-const hasPassedLinkvertise = urlParams.has('hash'); // Шукаємо ?hash= від Linkvertise
+const hasPassedLinkvertise = urlParams.has('hash'); 
 
 if (!hasPassedLinkvertise) {
-    // Якщо зайшли без проходження реклами (пряме посилання або байпас)
     document.getElementById('genBtn').disabled = true;
     document.getElementById('userIdInput').disabled = true;
     document.getElementById('errorBox').style.display = 'block';
     document.getElementById('instructionText').style.textDecoration = 'line-through';
+    document.getElementById('bypassBtn').style.display = 'block'; 
+}
+
+function forceUnlock() {
+    document.getElementById('genBtn').disabled = false;
+    document.getElementById('userIdInput').disabled = false;
+    document.getElementById('errorBox').style.display = 'none';
+    document.getElementById('instructionText').style.textDecoration = 'none';
+    document.getElementById('bypassBtn').style.display = 'none';
 }
 
 function generateKey() {
     const userId = document.getElementById('userIdInput').value.trim();
     if (!userId) {
-        alert('Будь ласка, введіть ваш Roblox UserId!');
+        alert('Please enter your valid Roblox UserId!');
         return;
     }
 
     const SECRET_SALT = "MySuperSecretSalt123!";
-    const currentDay = math.floor(Date.now() / 1000 / 86400);
+    const currentDay = Math.floor(Date.now() / 1000 / 86400); 
     const rawString = userId + "_" + currentDay + "_" + SECRET_SALT;
     
     let hash = 0;
