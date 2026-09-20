@@ -3,21 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kukirin Hub — Secure Activation</title>
+    <title>Kukirin Hub — Smart Key System</title>
     <style>
         :root {
-            --bg-main: #0b0b0e;
-            --bg-card: #13131a;
-            --accent: #0084ff;
-            --accent-glow: rgba(0, 132, 255, 0.4);
-            --success: #00ff87;
+            --bg-main: #060608;
+            --bg-card: #0d0d12;
+            --accent: #00ff87;
+            --accent-glow: rgba(0, 255, 135, 0.2);
+            --blue: #0084ff;
+            --blue-glow: rgba(0, 132, 255, 0.3);
             --text-main: #ffffff;
-            --text-sub: #868694;
+            --text-sub: #6c6c7a;
+            --error: #ff4d4d;
         }
         body {
             background-color: var(--bg-main);
             color: var(--text-main);
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -25,129 +27,151 @@
             margin: 0;
             overflow: hidden;
         }
-        /* Background Animated Glow */
         body::before {
             content: '';
             position: absolute;
-            width: 400px;
-            height: 400px;
+            width: 350px;
+            height: 350px;
+            background: var(--blue);
+            border-radius: 50%;
+            filter: blur(140px);
+            opacity: 0.12;
+            top: 20%; left: 30%;
+            animation: drift 10s infinite alternate ease-in-out;
+        }
+        body::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
             background: var(--accent);
             border-radius: 50%;
-            filter: blur(150px);
-            opacity: 0.15;
-            z-index: -1;
-            animation: floatGlow 8s infinite alternate;
+            filter: blur(140px);
+            opacity: 0.08;
+            bottom: 20%; right: 30%;
+            animation: drift 8s infinite alternate-reverse ease-in-out;
         }
-        @keyframes floatGlow {
-            0% { transform: translate(-50px, -50px); }
-            100% { transform: translate(50px, 50px); }
+        @keyframes drift {
+            0% { transform: translate(-30px, -30px); }
+            100% { transform: translate(30px, 30px); }
         }
         .container {
             background-color: var(--bg-card);
             padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            border: 1px solid rgba(255,255,255,0.03);
             text-align: center;
-            max-width: 420px;
+            max-width: 400px;
             width: 100%;
             position: relative;
+            box-sizing: border-box;
         }
         .container::after {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0; height: 3px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            background: linear-gradient(90deg, transparent, var(--blue), var(--accent), transparent);
         }
-        h2 { margin: 0 0 10px 0; font-size: 26px; font-weight: 800; letter-spacing: 0.5px; }
-        p { color: var(--text-sub); font-size: 14px; line-height: 1.5; margin-bottom: 25px; }
+        h2 { margin: 0 0 8px 0; font-size: 24px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; background: linear-gradient(45deg, #fff, var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p { color: var(--text-sub); font-size: 13.5px; line-height: 1.6; margin-bottom: 25px; }
         .status-msg {
             font-weight: 700;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.05);
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            font-size: 13.5px;
+            background: rgba(255,255,255,0.01);
+            border: 1px solid rgba(255,255,255,0.04);
         }
-        .text-info { color: var(--accent); }
-        .error { color: #ff4d4d; border-color: rgba(255, 77, 77, 0.2); background: rgba(255, 77, 77, 0.05); }
-        .success { color: var(--success); border-color: rgba(0, 255, 135, 0.2); background: rgba(0, 255, 135, 0.05); }
+        .text-info { color: var(--blue); border-color: rgba(0, 132, 255, 0.15); }
+        .error { color: var(--error); border-color: rgba(255, 77, 77, 0.15); background: rgba(255, 77, 77, 0.02); }
+        .success { color: var(--accent); border-color: rgba(0, 255, 135, 0.15); background: rgba(0, 255, 135, 0.02); }
         input {
             width: 100%;
-            padding: 14px;
-            margin: 15px 0;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 10px;
-            background-color: #1a1a24;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            background-color: #121218;
             color: white;
             font-size: 16px;
             text-align: center;
             box-sizing: border-box;
             outline: none;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        input:focus { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+        input:focus { border-color: var(--blue); box-shadow: 0 0 20px var(--blue-glow); }
         button {
-            background: linear-gradient(135deg, var(--accent), #0052cc);
+            background: linear-gradient(135deg, var(--blue), #0052cc);
             color: white;
             border: none;
-            padding: 15px;
-            font-size: 15px;
+            padding: 16px;
+            font-size: 14px;
             font-weight: 700;
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
             width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px var(--accent-glow);
+            box-shadow: 0 4px 20px var(--blue-glow);
         }
-        button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--accent-glow); opacity: 0.95; }
-        button:active { transform: translateY(0); }
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 25px var(--blue-glow); opacity: 0.95; }
+        button:disabled { background: #333; cursor: not-allowed; box-shadow: none; }
         .result-box {
             margin-top: 25px;
             padding: 20px;
-            background-color: #0b0b0e;
-            border-radius: 12px;
+            background-color: #060608;
+            border-radius: 14px;
             display: none;
-            border: 1px solid rgba(0, 255, 135, 0.3);
-            position: relative;
-            animation: fadeIn 0.4s ease;
+            border: 1px dashed rgba(0, 255, 135, 0.3);
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .key-text {
             font-size: 22px;
             font-weight: 800;
-            color: var(--success);
+            color: var(--accent);
             letter-spacing: 1.5px;
-            padding: 10px;
-            background: rgba(0, 255, 135, 0.05);
-            border-radius: 6px;
+            padding: 12px;
+            background: rgba(0, 255, 135, 0.03);
+            border-radius: 8px;
             cursor: pointer;
             user-select: all;
-            border: 1px dashed rgba(0, 255, 135, 0.2);
-            transition: background 0.2s;
+            border: 1px solid rgba(0, 255, 135, 0.1);
+            transition: all 0.2s;
+            margin-bottom: 12px;
         }
-        .key-text:hover { background: rgba(0, 255, 135, 0.1); }
+        .key-text:hover { background: rgba(0, 255, 135, 0.08); box-shadow: 0 0 15px var(--accent-glow); }
+        .timer-text {
+            font-size: 14px;
+            color: #ffb84d;
+            font-weight: 600;
+            background: rgba(255, 184, 77, 0.05);
+            padding: 6px 12px;
+            border-radius: 6px;
+            display: inline-block;
+            border: 1px solid rgba(255, 184, 77, 0.1);
+        }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <h2>🔑 System Activation</h2>
-    <div id="statusBox" class="status-msg text-info">Verifying secure Linkvertise token...</div>
+    <h2>⚡ Cyber Activation</h2>
+    <div id="statusBox" class="status-msg text-info">Checking key database status...</div>
     
-    <p id="instructionText" style="display:none;">Enter your Roblox ID displayed inside the script loader interface to retrieve your unique access key.</p>
+    <p id="instructionText" style="display:none;">Checkpoint cleared. Input your Roblox Identity ID to reveal or generate your 24-hour access token.</p>
     
     <input type="number" id="userIdInput" placeholder="Enter Roblox UserId..." style="display:none;">
-    <button id="genBtn" onclick="processGeneration()" style="display:none;">Generate Key</button>
+    <button id="genBtn" onclick="processGeneration()" style="display:none;">Generate Token</button>
 
     <div class="result-box" id="resultBox">
-        <p style="margin-top:0; margin-bottom:10px;">Your 24-Hour Active Key:</p>
-        <div class="key-text" id="keyOutput" onclick="navigator.clipboard.writeText(this.innerText); alert('Key copied to clipboard!')">KEY-00000000</div>
-        <p style="font-size: 11px; margin-top: 10px; margin-bottom: 0; color: var(--text-sub);">This key will expire automatically in 24 hours.</p>
+        <p style="margin-top:0; margin-bottom:10px; font-size: 13.5px;">Your Active Token:</p>
+        <div class="key-text" id="keyOutput" onclick="navigator.clipboard.writeText(this.innerText); alert('Token copied to clipboard!')">KEY-00000000</div>
+        <div class="timer-text" id="timerOutput">Expires in: --h --m --s</div>
     </div>
 </div>
-
 <script>
 const urlParams = new URLSearchParams(window.location.search);
 const validationToken = urlParams.get('tk') || urlParams.get('hash'); 
@@ -155,29 +179,56 @@ const statusBox = document.getElementById('statusBox');
 
 const LINKVERTISE_API_KEY = "25c946900dc877c68cebce3d1e255f61457ad31e952998159b3003ca986bc51b";
 const SECRET_SALT = "MySuperSecretSalt123!";
+let timerInterval;
+
+function startExpirationTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    
+    function updateTimer() {
+        const now = new Date();
+        const utcEnd = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1);
+        const diff = utcEnd - Date.now();
+        
+        if (diff <= 0) {
+            clearInterval(timerInterval);
+            localStorage.removeItem('kuki_smart_session');
+            window.location.reload();
+            return;
+        }
+        
+        const hours = Math.floor(diff / 1000 / 60 / 60);
+        const minutes = Math.floor((diff / 1000 / 60) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+        
+        document.getElementById('timerOutput').innerText = `Expires in: ${hours}h ${minutes}m ${seconds}s`;
+    }
+    
+    updateTimer();
+    timerInterval = setInterval(updateTimer, 1000);
+}
 
 function checkSavedKey() {
-    const saved = localStorage.getItem('kuki_saved_session');
+    const saved = localStorage.getItem('kuki_smart_session');
     if (saved) {
         const session = JSON.parse(saved);
         const currentDay = Math.floor(Date.now() / 1000 / 86400);
         
-        // Якщо збережена доба збігається з поточною — миттєво віддаємо старий ключ
         if (session.day === currentDay) {
             statusBox.className = "status-msg success";
-            statusBox.innerText = "✅ Welcome back! Active session found.";
+            statusBox.innerText = "✅ Session active. You can review your key anytime today.";
             document.getElementById('keyOutput').innerText = session.key;
             document.getElementById('resultBox').style.display = 'block';
+            startExpirationTimer();
             return true;
         } else {
-            localStorage.removeItem('kuki_saved_session'); // Скидаємо старий ключ через 24 години
+            localStorage.removeItem('kuki_smart_session');
         }
     }
     return false;
 }
 
 async function checkBypass() {
-    if (checkSavedKey()) return;
+    if (checkSavedKey()) return; 
 
     if (!validationToken) {
         statusBox.className = "status-msg error";
@@ -191,21 +242,20 @@ async function checkBypass() {
             unlockForm();
         } else {
             statusBox.className = "status-msg error";
-            statusBox.innerText = "❌ Security Alert: Bypass framework detected.";
+            statusBox.innerText = "❌ Security Violation: Linkvertise token validation rejected.";
         }
     } catch (e) {
-        // Резерв при CORS-блокуванні
         if (validationToken.length > 12) unlockForm();
         else {
             statusBox.className = "status-msg error";
-            statusBox.innerText = "❌ Validation failed. Verification engine offline.";
+            statusBox.innerText = "❌ Validation Error: Verification engine is offline.";
         }
     }
 }
 
 function unlockForm() {
     statusBox.className = "status-msg success";
-    statusBox.innerText = "✅ Verification cleared successfully!";
+    statusBox.innerText = "✅ Security clearance granted!";
     document.getElementById('instructionText').style.display = 'block';
     document.getElementById('userIdInput').style.display = 'block';
     document.getElementById('genBtn').style.display = 'block';
@@ -213,7 +263,7 @@ function unlockForm() {
 
 function processGeneration() {
     const userId = document.getElementById('userIdInput').value.trim();
-    if (!userId) return alert('Please input your Roblox UserId!');
+    if (!userId) return alert('Roblox UserId cannot be blank!');
 
     const currentDay = Math.floor(Date.now() / 1000 / 86400);
     const rawString = userId + "_" + currentDay + "_" + SECRET_SALT;
@@ -224,18 +274,21 @@ function processGeneration() {
     }
     const generatedKey = "KEY-" + hash;
 
-    // Зберігаємо ключ у браузері разом із номером дня
-    localStorage.setItem('kuki_saved_session', JSON.stringify({
+    localStorage.setItem('kuki_smart_session', JSON.stringify({
         key: generatedKey,
         day: currentDay
     }));
 
+    document.getElementById('instructionText').style.display = 'none';
+    document.getElementById('userIdInput').style.display = 'none';
+    document.getElementById('genBtn').style.display = 'none';
+
     document.getElementById('keyOutput').innerText = generatedKey;
     document.getElementById('resultBox').style.display = 'block';
+    startExpirationTimer();
 }
 
 checkBypass();
 </script>
-
 </body>
 </html>
