@@ -180,6 +180,7 @@ const statusBox = document.getElementById('statusBox');
 const SECRET_SALT = "MySuperSecretSalt123!";
 let timerInterval;
 
+// Функция живого таймера зворотного відліку до кінця доби (00:00 UTC)
 function startExpirationTimer() {
     if (timerInterval) clearInterval(timerInterval);
     
@@ -191,6 +192,7 @@ function startExpirationTimer() {
         if (diff <= 0) {
             clearInterval(timerInterval);
             localStorage.removeItem('kuki_smart_session');
+            localStorage.removeItem('kuki_last_used_hash');
             window.location.reload();
             return;
         }
@@ -206,12 +208,14 @@ function startExpirationTimer() {
     timerInterval = setInterval(updateTimer, 1000);
 }
 
+// Проверка: если ключ уже был сгенерирован сегодня — сразу показываем его
 function checkSavedKey() {
     const saved = localStorage.getItem('kuki_smart_session');
     if (saved) {
         const session = JSON.parse(saved);
         const currentDay = Math.floor(Date.now() / 1000 / 86400);
         
+        // Если день совпадает — сессия активна, пускаем смотреть ключ без рекламы
         if (session.day === currentDay) {
             statusBox.className = "status-msg success";
             statusBox.innerText = "✅ Session active. You can review your key anytime today.";
@@ -220,32 +224,35 @@ function checkSavedKey() {
             startExpirationTimer();
             return true;
         } else {
+            // Если наступил новый день — полностью очищаем старые данные
             localStorage.removeItem('kuki_smart_session');
+            localStorage.removeItem('kuki_last_used_hash');
         }
     }
     return false;
 }
 
 function checkBypass() {
+    // 1. ПЕРВЫМ ДЕЛОМ проверяем, есть ли уже активный ключ на сегодня. Если да — просто показываем его
     if (checkSavedKey()) return; 
 
+    // 2. Если ключа нет, проверяем наличие токена от Linkvertise
     if (!validationToken) {
         statusBox.className = "status-msg error";
         statusBox.innerText = "❌ Protection Error: Please complete the Linkvertise checkpoint.";
         return;
     }
 
-    // Автономная проверка структуры токена: легитный токен Linkvertise всегда длиннее 50 символов
+    // 3. Проверяем длину токена (защита от фейков)
     if (validationToken.length >= 50) {
-        // Проверяем, не зашли ли мы по старой ссылке из истории (сверяем сохраненный использованный хэш)
         const lastUsedHash = localStorage.getItem('kuki_last_used_hash');
         
+        // Если этот токен уже использовался для генерации, а ключа в памяти нет (заход по истории БЕЗ готового ключа) — блокируем
         if (lastUsedHash === validationToken) {
             statusBox.className = "status-msg error";
             statusBox.innerText = "❌ Security Alert: This Linkvertise link has already been used. Please get a new link.";
         } else {
-            // Если хэш новый и длинный — записываем его как использованный и открываем доступ
-            localStorage.setItem('kuki_last_used_hash', validationToken);
+            // Если проход свежий — открываем форму ввода ID
             unlockForm();
         }
     } else {
@@ -275,15 +282,21 @@ function processGeneration() {
     }
     const generatedKey = "KEY-" + hash;
 
+    // Запоминаем токен, который был использован для этой генерации
+    localStorage.setItem('kuki_last_used_hash', validationToken);
+
+    // Сохраняем сам ключ и текущий день
     localStorage.setItem('kuki_smart_session', JSON.stringify({
         key: generatedKey,
         day: currentDay
     }));
 
+    // Прячем форму ввода
     document.getElementById('instructionText').style.display = 'none';
     document.getElementById('userIdInput').style.display = 'none';
     document.getElementById('genBtn').style.display = 'none';
 
+    // Выводим ключ и запускаем таймер
     document.getElementById('keyOutput').innerText = generatedKey;
     document.getElementById('resultBox').style.display = 'block';
     startExpirationTimer();
