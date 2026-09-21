@@ -238,18 +238,17 @@ async function checkBypass() {
 
     try {
         const response = await fetch(`https://linkvertise.com{LINKVERTISE_API_KEY}&token=${validationToken}`);
-        if (response.ok || (await response.json()).success) {
+        const data = await response.json();
+        
+        if (response.ok && data.success === true) {
             unlockForm();
         } else {
             statusBox.className = "status-msg error";
-            statusBox.innerText = "❌ Security Violation: Linkvertise token validation rejected.";
+            statusBox.innerText = "❌ Security Violation: Linkvertise token has already been used or expired.";
         }
     } catch (e) {
-        if (validationToken.length > 12) unlockForm();
-        else {
-            statusBox.className = "status-msg error";
-            statusBox.innerText = "❌ Validation Error: Verification engine is offline.";
-        }
+        statusBox.className = "status-msg error";
+        statusBox.innerText = "❌ Security Alert: Direct history link block active. Please re-enter via Linkvertise.";
     }
 }
 
@@ -267,7 +266,7 @@ function processGeneration() {
 
     const currentDay = Math.floor(Date.now() / 1000 / 86400);
     const rawString = userId + "_" + currentDay + "_" + SECRET_SALT;
-    
+	
     let hash = 0;
     for (let i = 0; i < rawString.length; i++) {
         hash = (hash * 31 + rawString.charCodeAt(i)) % 100000000;
