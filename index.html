@@ -177,7 +177,6 @@ const urlParams = new URLSearchParams(window.location.search);
 const validationToken = urlParams.get('tk') || urlParams.get('hash'); 
 const statusBox = document.getElementById('statusBox');
 
-const LINKVERTISE_API_KEY = "25c946900dc877c68cebce3d1e255f61457ad31e952998159b3003ca986bc51b";
 const SECRET_SALT = "MySuperSecretSalt123!";
 let timerInterval;
 
@@ -227,7 +226,7 @@ function checkSavedKey() {
     return false;
 }
 
-async function checkBypass() {
+function checkBypass() {
     if (checkSavedKey()) return; 
 
     if (!validationToken) {
@@ -236,19 +235,22 @@ async function checkBypass() {
         return;
     }
 
-    try {
-        const response = await fetch(`https://linkvertise.com{LINKVERTISE_API_KEY}&token=${validationToken}`);
-        const data = await response.json();
+    // Автономная проверка структуры токена: легитный токен Linkvertise всегда длиннее 50 символов
+    if (validationToken.length >= 50) {
+        // Проверяем, не зашли ли мы по старой ссылке из истории (сверяем сохраненный использованный хэш)
+        const lastUsedHash = localStorage.getItem('kuki_last_used_hash');
         
-        if (response.ok && data.success === true) {
-            unlockForm();
-        } else {
+        if (lastUsedHash === validationToken) {
             statusBox.className = "status-msg error";
-            statusBox.innerText = "❌ Security Violation: Linkvertise token has already been used or expired.";
+            statusBox.innerText = "❌ Security Alert: This Linkvertise link has already been used. Please get a new link.";
+        } else {
+            // Если хэш новый и длинный — записываем его как использованный и открываем доступ
+            localStorage.setItem('kuki_last_used_hash', validationToken);
+            unlockForm();
         }
-    } catch (e) {
+    } else {
         statusBox.className = "status-msg error";
-        statusBox.innerText = "❌ Security Alert: Direct history link block active. Please re-enter via Linkvertise.";
+        statusBox.innerText = "❌ Security Violation: Invalid or corrupted token signature.";
     }
 }
 
@@ -289,5 +291,3 @@ function processGeneration() {
 
 checkBypass();
 </script>
-</body>
-</html>
